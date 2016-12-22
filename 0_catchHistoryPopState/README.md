@@ -45,7 +45,7 @@ window.history 对象包含浏览器的历史。
 
 这样就可以在用户用户点击回退按钮时，做出自己的“个性化定制”处理。
 
-## Tip：
+## Tips：
 虽然javascript不允许修改history里已有的url链接，也无法访问栈中的值，但document.referrer属性可返回载入当前文档的文档的 URL。  
 如果当前文档不是通过超级链接访问的，则为 null。  
 
