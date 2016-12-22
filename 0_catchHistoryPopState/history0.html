@@ -34,6 +34,8 @@
     <br/><br/>
     <div onclick="handleClick()">location.href to history1.html</div>
     <h1>history0.html</h1>
+
+    <h3>在当前页面先点击'后退'按钮，可拦截该事件</h3>
     <script>
         let pushHistory = () => {
             let state = {
@@ -42,6 +44,7 @@
             };
             window.history.pushState(state, state.title, state.url);
         }
+
         pushHistory();
         window.addEventListener('popstate', (e) => {
             console.log(e);
