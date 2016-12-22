@@ -12,6 +12,10 @@
 
     <title></title>
     <style>
+        a {
+            color: #000;
+            text-decoration: none;
+        }
     </style>
 
     <!-- 新 Bootstrap 核心 CSS 文件 -->
@@ -26,11 +30,10 @@
     <![endif]-->
 </head>
 <body class="HolyGrail">
-    <a href="history0.html">000000000</a><br/>
-    <a href="history1.html">111111111</a><br/>
-    <a href="history2.html">222222222</a><br/>
-    <a href="history3.html">333333333</a><br/>
-    <h1>00000000000000</h1>
+    <a href="history0.html">&lt;a&gt;标签链接至history0.html</a>
+    <br/><br/>
+    <div onclick="handleClick()">location.href to history1.html</div>
+    <h1>history0.html</h1>
     <script>
         let pushHistory = () => {
             let state = {
@@ -45,6 +48,10 @@
             alert('我监听到了浏览器的返回按钮事件');
 
         },false)
+
+        let handleClick = () => {
+            location.href = 'history1.html'
+        }
     </script>
 </body>
 </html>
