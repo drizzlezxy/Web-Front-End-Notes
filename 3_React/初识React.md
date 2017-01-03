@@ -18,7 +18,7 @@ React 组件有两个核心概念：
   在组建内，我们只对其进行"读"操作 (`this.props.属性名`)，而不进行"写"操作。  
 
 ## 组建生命周期的概念
-![React Components Lifecycle](./img/ReactComponentsLifecycle.jpeg)
+![React Components Lifecycle](./img/ReactComponentsLifecycle.jpeg)  
 **组建生命周期** 主要有以下三种情况：
 
 * mount 
