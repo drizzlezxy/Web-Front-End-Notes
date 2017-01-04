@@ -186,7 +186,7 @@ React对不同类型的节点的处理逻辑我们很容易得到推论，那就
 render: <div id="before" /> //Before
 render: <div id="after" /> //After
 
-// 则算法会进行如下操
+// 则算法会进行如下操作
 [replaceAttribute id "after"]
 ```
 虚拟DOM的style属性稍有不同，其值并不是一个简单字符串而必须为一个对象:
@@ -195,7 +195,7 @@ render: <div id="after" /> //After
 render: <div style={{color: 'red'}} /> //Before
 render: <div style={{fontWeight: 'bold'}} /> //After
 
-// 则算法会进行如下操
+// 则算法会进行如下操作
 [removeStyle color]
 [addStyle font-weight 'bold']
 ```
