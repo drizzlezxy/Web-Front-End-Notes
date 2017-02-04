@@ -53,7 +53,8 @@ Object.getOwnPropertySymbols(obj)
 ```
 
 ### Symbol.for() 和 Symbol.keyFor()
-有时，我们希望重新使用同一个Symbol值，`Symbol.for`方法可以做到这一点。
+1. Symbol.for()  
+有时，我们希望重新使用同一个Symbol值，`Symbol.for`方法可以做到这一点。  
 ```
 var s1 = Symbol.for('foo');
 var s2 = Symbol.for('foo');
@@ -61,3 +62,14 @@ var s2 = Symbol.for('foo');
 s1 === s2 // true
 ```
 它接受一个字符串作为参数，然后搜索有没有以该参数作为名称的Symbol值。如果有，就返回这个Symbol值，否则就新建并返回一个以该字符串为名称的Symbol值。
+
+2. Symbol.keyFor()
+`Symbol.for()`与`Symbol()`这两种写法，都会生成新的Symbol。它们的区别是，前者会被登记在 *全局环境* 中供搜索，后者不会。
+而`Symbol.keyFor`方法返回一个已经登记的Symbol类型值的key。
+```
+var s1 = Symbol.for('foo');
+Symbol.keyFor('s1'); // "foo"
+
+var s2 = Symbol('foo');
+Symbol.keyFor(s2) // undefined
+```
