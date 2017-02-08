@@ -2,10 +2,12 @@
 
 ## 目录
 
-> Symbol 数据类型  
-> Set 和 Map 数据结构
+> 1. Symbol 数据类型  
+> 2. Set 和 Map 数据结构  
+> 3. 对象操作之 Proxy代理器  
+> 4. 对象操作之 Reflect
 
-## Symbol 数据类型
+## 1. Symbol 数据类型
 
 ### 基本概念
 JavaScript语言的第七种数据类型，Symbol值通过Symbol函数生成。这就是说，对象的属性名现在可以有两种类型，一种是原来就有的字符串，另一种就是新增的Symbol类型。凡是属性名属于Symbol类型，就都是独一无二的，可以保证不会与其他属性名产生冲突。  
@@ -86,9 +88,9 @@ Object.getOwnPropertySymbols(obj)
 	Symbol.keyFor(s2) // undefined
 	```
 
-## Set 和 Map 数据结构
+## 2. Set 和 Map 数据结构
 
-### 1. Set结构
+### 2.1 Set结构
 #### 基本概念
 Set本身是一个构造函数，用来生成一种新的数据结构Set。Set数据结构类似于数组，但是成员的值都是唯一的，没有重复的值。
 
@@ -176,7 +178,7 @@ s.size // 6
 	// ["blue", "blue"]
 	```
 
-### 2. Map结构
+### 2.2 Map结构
 JavaScript的对象（Object），本质上是键值对的集合，但只能用字符串当作键。
 Map结构的键则不限于字符串，各种类型都可以当作键。
 如果说Object提供了“字符串-值”的对应关系，Map结构则提供了“值-值”的对应关系。
@@ -213,8 +215,7 @@ console.log(m);
 *注：Map的遍历顺序就是插入顺序*
 
 
-----------------------------
-## 对象操作之 Proxy代理器
+## 3. 对象操作之 Proxy代理器
 
 ### 基本概念
 Proxy 用于修改某些操作的默认行为，等同于在语言层面做出修改，即对编程语言进行编程。
@@ -260,19 +261,19 @@ Proxy所支持的拦截操作以粗略列在下表中，具体操作可自行Goo
 
 	|	所拦截的操作	|	含义
 ----|---------------|------
-1   |	get(target, propKey, receiver)	|	拦截对象属性的读取，比如`proxy.foo`和`proxy['foo']`。最后一个参数receiver是一个对象，可选
-2	|	set(target, propKey, value, receiver)	|	拦截对象属性的设置，比如`proxy.foo = v`或`proxy['foo'] = v`，返回一个布尔值。
+1   |	get(target, propKey, receiver)	|	拦截对象属性的读取，<br>比如`proxy.foo`和`proxy['foo']`。<br>最后一个参数receiver是一个对象，可选
+2	|	set(target, propKey, value, receiver)	|	拦截对象属性的设置，比如`proxy.foo = v`或<br>`proxy['foo'] = v`，返回一个布尔值。
 3	|	has(target, propKey)	|	拦截`propKey in proxy`的操作，返回一个布尔值。
 4	|	deleteProperty(target, propKey)	|	拦截delete proxy[propKey]的操作，返回一个布尔值。
-5	|	ownKeys(target)	|	拦截`Object.getOwnPropertyNames(proxy)`、`Object.getOwnPropertySymbols(proxy)`、`Object.keys(proxy)`，返回一个数组。该方法返回目标对象所有自身的属性的属性名，而Object.keys()的返回结果仅包括目标对象自身的可遍历属性。
-6	|	getOwnPropertyDescriptor(target, propKey)	|	拦截`Object.getOwnPropertyDescriptor(proxy, propKey)`，返回属性的描述对象。
-7	|	defineProperty(target, propKey, propDesc)	|	拦截`Object.defineProperty(proxy, propKey, propDesc）`、`Object.defineProperties(proxy, propDescs)`，返回一个布尔值。
-8	|	preventExtensions(target)	|	拦截`Object.preventExtensions(proxy)`，返回一个布尔值。
-9	|	getPrototypeOf(target)	|	拦截`Object.getPrototypeOf(proxy)`，返回一个对象。
-10	|	isExtensible(target)	|	拦截`Object.isExtensible(proxy)`，返回一个布尔值。
-11	|	setPrototypeOf(target, proto)	|	拦截`Object.setPrototypeOf(proxy, proto)`，返回一个布尔值。如果目标对象是函数，那么还有两种额外操作可以拦截。
-12	|	apply(target, object, args)	|	拦截Proxy实例作为函数调用的操作，比如`proxy(...args)`、`proxy.call(object, ...args)`、`proxy.apply(...)`。
-13	|	construct(target, args)	|	拦截Proxy实例作为构造函数调用的操作，比如`new proxy(...args)`。
+5	|	ownKeys(target)	|	拦截`Object.getOwnPropertyNames(proxy)`、<br>`Object.getOwnPropertySymbols(proxy)`、<br>`Object.keys(proxy)`，<br>返回一个数组。该方法返回目标对象所有自身的属性的属性名，<br>而`Object.keys()`的返回结果仅包括目标对象自身的可遍历属性。
+6	|	getOwnPropertyDescriptor(target, propKey)	|	拦截<br>`Object.getOwnPropertyDescriptor(proxy,propKey)`，<br>返回属性的描述对象。
+7	|	defineProperty(target, propKey, propDesc)	|	拦截<br>`Object.defineProperty(proxy,propKey,propDesc）`、<br>`Object.defineProperties(proxy, propDescs)`，<br>返回一个布尔值。
+8	|	preventExtensions(target)	|	拦截`Object.preventExtensions(proxy)`，<br>返回一个布尔值。
+9	|	getPrototypeOf(target)	|	拦截`Object.getPrototypeOf(proxy)`，<br>返回一个对象。
+10	|	isExtensible(target)	|	拦截`Object.isExtensible(proxy)`，<br>返回一个布尔值。
+11	|	setPrototypeOf(target, proto)	|	拦截`Object.setPrototypeOf(proxy, proto)`，<br>返回一个布尔值。<br>如果目标对象是函数，那么还有两种额外操作可以拦截。
+12	|	apply(target, object, args)	|	拦截Proxy实例作为函数调用的操作，<br>比如`proxy(...args)`、<br>`proxy.call(object, ...args)`、<br>`proxy.apply(...)`。
+13	|	construct(target, args)	|	拦截Proxy实例作为构造函数调用的操作，<br>比如`new proxy(...args)`。
 
 ### Proxy.revocable() 拒绝访问的实例
 `Proxy.revocable`方法返回一个Proxy实例，但该实例的属性可设置为拒绝访问。
@@ -296,15 +297,17 @@ proxy.foo // TypeError: Revoked
 `Proxy.revocable`的一个使用场景是，目标对象不允许直接访问，必须通过代理访问，一旦访问结束，就收回代理权，不允许再次访问。
 
 
-## 对象操作之 Reflect
+## 4. 对象操作之 Reflect
 
 ### 基本概念
 Reflect对象也是ES6为了操作对象而提供的新的API，它有13个和Proxy一一对应的静态方法属性（见上一节中Proxy支持的拦截操作，`Reflect.defineProperty()`等）。
 
 ### 作用
-设计Reflect对象，有以下这些目的：
+设计Reflect对象，有以下这些目的：  
+
 1. 将Object对象的一些明显属于语言内部的方法（比如`Object.defineProperty`），放到Reflect对象上。现阶段，某些方法同时在Object和Reflect对象上部署，未来的新方法将只部署在Reflect对象上。也就是说，从Reflect对象上可以拿到语言内部的方法。
 2. 修改某些Object方法的返回结果，让其变得更合理。比如，`Object.defineProperty(obj, name, desc)`在无法定义属性时，会抛出一个错误，而`Reflect.defineProperty(obj, name, desc)`则会返回false。
+
 	```js
 	// 老写法
 	try {
@@ -322,6 +325,7 @@ Reflect对象也是ES6为了操作对象而提供的新的API，它有13个和Pr
 	}
 	```
 3. 让Object操作都变成函数行为。某些Object操作是命令式，比如`name in obj`和`delete obj[name]`，而`Reflect.has(obj, name)`和`Reflect.deleteProperty(obj, name)`让它们变成了函数行为。
+4. 
 	```js
 	// 老写法
 	'assign' in Object // true
@@ -330,6 +334,7 @@ Reflect对象也是ES6为了操作对象而提供的新的API，它有13个和Pr
 	Reflect.has(Object, 'assign') // true
 	```
 4. 与Proxy对象的方法一一对应，可以为Proxy的拦截行为保留原有的默认行为。
+5. 
 	```js
 	var target = {title: 'my demo'};
 	
