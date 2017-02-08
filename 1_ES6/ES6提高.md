@@ -211,3 +211,137 @@ console.log(m);
 + `entries()`: 返回键值对的遍历器
 + `forEach()`: 使用回调函数遍历每个成员,用法与数组一致  
 *注：Map的遍历顺序就是插入顺序*
+
+
+----------------------------
+## 对象操作之 Proxy代理器
+
+### 基本概念
+Proxy 用于修改某些操作的默认行为，等同于在语言层面做出修改，即对编程语言进行编程。
+  
+ES6 原生提供 Proxy 构造函数，用来生成 Proxy 实例。
+
+```js
+var proxy = new Proxy(target, handler);
+```  
+以理解成，在目标对象`target`之前架设一层“拦截”`handler`，来定制拦截行为。外界对该对象的访问，都必须先通过这层拦截，因此提供了一种机制，可以对外界的访问进行过滤和改写。  
+其中`target`、`handler`都是对象。
+
+下面是另一个拦截读取属性(get)行为的例子。
+
+```js
+var a = {title: 'my demo'};
+// Proxy接受两个参数
+var proxy = new Proxy(
+  // 第一个参数是所要代理的目标对象
+  a, 
+  // 第二个参数是一个配置对象，对于每一个被代理的操作，需要提供一个对应的处理函数，该函数将拦截对应的操作
+  {
+    get: function(target, propertyName) {
+      console.log('target:', target);
+      console.log('propertyName:', propertyName);
+      // 可以看到，由于拦截函数总是返回35，所以访问任何属性都得到35
+      return 35;
+    }
+  }
+);
+
+proxy.time
+// target: Object {title: "my demo"}
+// propertyName: time
+//35
+```  
+
+*注意:  
+要使得Proxy起作用，必须针对Proxy实例（上例是proxy对象）进行操作，而不是针对目标对象（上例是对象a）进行操作。*
+
+### Proxy支持的拦截操作
+Proxy所支持的拦截操作以粗略列在下表中，具体操作可自行Google
+
+	|	所拦截的操作	|	含义
+----|---------------|------
+1   |	get(target, propKey, receiver)	|	拦截对象属性的读取，比如`proxy.foo`和`proxy['foo']`。最后一个参数receiver是一个对象，可选
+2	|	set(target, propKey, value, receiver)	|	拦截对象属性的设置，比如`proxy.foo = v`或`proxy['foo'] = v`，返回一个布尔值。
+3	|	has(target, propKey)	|	拦截`propKey in proxy`的操作，返回一个布尔值。
+4	|	deleteProperty(target, propKey)	|	拦截delete proxy[propKey]的操作，返回一个布尔值。
+5	|	ownKeys(target)	|	拦截`Object.getOwnPropertyNames(proxy)`、`Object.getOwnPropertySymbols(proxy)`、`Object.keys(proxy)`，返回一个数组。该方法返回目标对象所有自身的属性的属性名，而Object.keys()的返回结果仅包括目标对象自身的可遍历属性。
+6	|	getOwnPropertyDescriptor(target, propKey)	|	拦截`Object.getOwnPropertyDescriptor(proxy, propKey)`，返回属性的描述对象。
+7	|	defineProperty(target, propKey, propDesc)	|	拦截`Object.defineProperty(proxy, propKey, propDesc）`、`Object.defineProperties(proxy, propDescs)`，返回一个布尔值。
+8	|	preventExtensions(target)	|	拦截`Object.preventExtensions(proxy)`，返回一个布尔值。
+9	|	getPrototypeOf(target)	|	拦截`Object.getPrototypeOf(proxy)`，返回一个对象。
+10	|	isExtensible(target)	|	拦截`Object.isExtensible(proxy)`，返回一个布尔值。
+11	|	setPrototypeOf(target, proto)	|	拦截`Object.setPrototypeOf(proxy, proto)`，返回一个布尔值。如果目标对象是函数，那么还有两种额外操作可以拦截。
+12	|	apply(target, object, args)	|	拦截Proxy实例作为函数调用的操作，比如`proxy(...args)`、`proxy.call(object, ...args)`、`proxy.apply(...)`。
+13	|	construct(target, args)	|	拦截Proxy实例作为构造函数调用的操作，比如`new proxy(...args)`。
+
+### Proxy.revocable() 拒绝访问的实例
+`Proxy.revocable`方法返回一个Proxy实例，但该实例的属性可设置为拒绝访问。
+
+```js
+let target = {};
+let handler = {};
+
+let {proxy, revoke} = Proxy.revocable(target, handler);
+
+proxy.foo = 123;
+proxy.foo // 123
+
+revoke();
+proxy.foo // TypeError: Revoked
+```
+`Proxy.revocable`方法返回一个对象，包含两个属性：
+- proxy属性 是该Proxy的一个实例
+- revoke属性 是一个方法，执行该方法后，proxy实例的属性会被拒绝访问
+
+`Proxy.revocable`的一个使用场景是，目标对象不允许直接访问，必须通过代理访问，一旦访问结束，就收回代理权，不允许再次访问。
+
+
+## 对象操作之 Reflect
+
+### 基本概念
+Reflect对象也是ES6为了操作对象而提供的新的API，它有13个和Proxy一一对应的静态方法属性（见上一节中Proxy支持的拦截操作，`Reflect.defineProperty()`等）。
+
+### 作用
+设计Reflect对象，有以下这些目的：
+1. 将Object对象的一些明显属于语言内部的方法（比如`Object.defineProperty`），放到Reflect对象上。现阶段，某些方法同时在Object和Reflect对象上部署，未来的新方法将只部署在Reflect对象上。也就是说，从Reflect对象上可以拿到语言内部的方法。
+2. 修改某些Object方法的返回结果，让其变得更合理。比如，`Object.defineProperty(obj, name, desc)`在无法定义属性时，会抛出一个错误，而`Reflect.defineProperty(obj, name, desc)`则会返回false。
+	```js
+	// 老写法
+	try {
+	  Object.defineProperty(target, property, attributes);
+	  // success
+	} catch (e) {
+	  // failure
+	}
+	
+	// ES6
+	if (Reflect.defineProperty(target, property, attributes)) {
+	  // success
+	} else {
+	  // failure
+	}
+	```
+3. 让Object操作都变成函数行为。某些Object操作是命令式，比如`name in obj`和`delete obj[name]`，而`Reflect.has(obj, name)`和`Reflect.deleteProperty(obj, name)`让它们变成了函数行为。
+	```js
+	// 老写法
+	'assign' in Object // true
+	
+	// 新写法
+	Reflect.has(Object, 'assign') // true
+	```
+4. 与Proxy对象的方法一一对应，可以为Proxy的拦截行为保留原有的默认行为。
+	```js
+	var target = {title: 'my demo'};
+	
+	var proxy = new Proxy(target, {
+		set: function(target, name, value, receiver) {
+			var success = Reflect.set(target, name, value, receiver);
+			if(success) {
+				console.log('property ' + name + ' on ' + target + ' set to ' + value);
+			}
+			// your code here
+			return success;
+		}
+	})
+	```
+	上面代码中，Proxy方法拦截target对象的属性赋值行为(set)。而先用Reflect.set方法可以先确保完成默认的属性赋值行为，然后在部署额外的功能。
