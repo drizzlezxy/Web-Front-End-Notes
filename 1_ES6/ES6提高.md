@@ -1,4 +1,4 @@
-# ES6 
+# ES6 学习笔记（二）
 
 ## 目录
 
@@ -6,6 +6,7 @@
 > 2. Set 和 Map 数据结构  
 > 3. 对象操作之 Proxy代理器  
 > 4. 对象操作之 Reflect
+> 5. Promise 对象
 
 ## 1. Symbol 数据类型
 
@@ -350,3 +351,80 @@ Reflect对象也是ES6为了操作对象而提供的新的API，它有13个和Pr
 	})
 	```
 	上面代码中，Proxy方法拦截target对象的属性赋值行为(set)。而先用Reflect.set方法可以先确保完成默认的属性赋值行为，然后在部署额外的功能。
+
+## 5. Promise 对象
+
+### 基本概念
+Promise是异步编程的一种解决方案。其实简单来说Promise就是一个容器，这个容器有三种状态：
+- Pending (进行中)
+- Resolved (已完成)
+- Rejected (已失败)
+
+状态的改变只有两种可能：从 Pending 变为 Resolved 或 从 Pending 变为 Rejected。
+
+```js
+function successFun(value) {
+	console.log(value)
+}
+
+function errorFun(value) {
+	console.error(value)
+}
+
+var promise = new Promise((resolve, reject) => {
+	if ( /* 异步操作成功 */ ) {
+		resolve('操作成功了！'); // 该参数会被传给successFun
+	} else {
+		reject('操作失败了');// 该参数会被传给errorFun
+	}
+})
+
+promise.then(successFun, errorFun);
+```
+可以看到，Promise对象是一个构造函数，可用来生成实例（promise）。  
+构造函数接受一个函数作为参数，该函数会接收两个参数(resolve, reject)，它们是两个函数，由JavaScript引擎提供，不用自己部署，在异步操作成功时调用：
+resolve会将promise的状态变为resolved；
+reject会将promise的状态变为Rejected。  
+
+当`promise.then`执行时，该方法接受两个回调函数(successFun、errorFun)作为参数，它们分别是Resolved状态和Rejected状态的回调函数。
+
+### Promise.prototype.then()
+Promide的实例有then方法
+```js
+new Promise((resolve, reject) => {
+	resolve('成功');
+}).then(
+	() => {},
+	() => {}
+) // Promise {[[PromiseStatus]]: "resolved", [[PromiseValue]]: undefined}
+```
+而`then()`方法会返回个新的Promise实例，因此可以采用链式的写法，即then方法后面再调用另一个then方法。
+若在第一次的回调函数中返回一个新的Promise实例（否则默认返回一个resolved状态的新的Promise实例），则第二个then方法属于这个新的Promise实例。
+```js
+var i = 1;
+var getJSON = () => {
+	return new Promise((resolve, reject) => {
+		setTimeout(() => resolve('success 第' + (i++) + '次'), 5000)
+	})
+}
+getJSON().then(
+	(val) => {
+		console.log(val);
+		return getJSON();
+	},
+	(val) => {
+		console.log('1failed');
+	}
+).then(
+	(val) => {
+		console.log(val);
+	},
+	(val) => {
+		console.log('2failed');
+	}
+)
+```
+以上例子可以看到，第一个then方法指定的回调函数，返回的是另一个Promise对象。这时，第二个then方法指定的回调函数，就会等待这个新的Promise对象状态发生变化，从而输出结果。
+
+### Promise.prototype.catch()
+
