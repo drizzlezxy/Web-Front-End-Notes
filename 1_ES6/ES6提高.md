@@ -7,6 +7,8 @@
 > 3. 对象操作之 Proxy代理器  
 > 4. 对象操作之 Reflect
 > 5. Promise 对象
+> 6. Iterate遍历器 和 for...of循环
+> 7. Generatol函数
 
 ## 1. Symbol 数据类型
 
@@ -385,6 +387,7 @@ promise.then(successFun, errorFun);
 构造函数接受一个函数作为参数，该函数会接收两个参数(resolve, reject)，它们是两个函数，由JavaScript引擎提供，不用自己部署，在异步操作成功时调用：
 resolve会将promise的状态变为resolved；
 reject会将promise的状态变为Rejected。  
+*注：在Promise异步执行中抛出错误，也会使状态变为Rejected*
 
 当`promise.then`执行时，该方法接受两个回调函数(successFun、errorFun)作为参数，它们分别是Resolved状态和Rejected状态的回调函数。
 
@@ -427,4 +430,322 @@ getJSON().then(
 以上例子可以看到，第一个then方法指定的回调函数，返回的是另一个Promise对象。这时，第二个then方法指定的回调函数，就会等待这个新的Promise对象状态发生变化，从而输出结果。
 
 ### Promise.prototype.catch()
+当Promise实例的状态变成Rejected时，catch就会捕获这个错误，调用指定的回调函数。
 
+```js
+new Promise((resolve, reject) => {
+	throw new Error('test');
+}).then(
+	(value) => {
+		console.log('success ' + value);
+	},
+	// 不能在then方法中写入第二个回调函数，否则catch就无法捕获错误
+	// (value) => {
+	// 	console.log('failed ' + value);
+	// }
+).catch((error) => {
+	console.error(error)
+})
+// Error: test
+```
+另外，在then方法的回调函数中抛出错误，也会被catch方法捕获。
+
+```js
+new Promise((resolve, reject) => {
+	resolve();
+}).then(
+	(value) => {
+		throw new Error('test');
+	},
+	(value) => {
+		console.log('failed ' + value);
+	}
+).catch((error) => {
+	console.error(error)
+})
+// Error: test
+```
+我们已经知道Promise可以采用链式的写法，而catch可以捕获之前所有对象的错误。
+
+```js
+getJSON = () => {
+	return new Promise((resolve, reject) => {
+		// your code here
+	})
+}
+getJSON().then(function(post) {
+  return getJSON();
+}).then(function(comments) {
+  // some code
+}).catch(function(error) {
+  // 处理前面三个Promise产生的错误
+});
+```
+
+### Promise.all()
+Promise.all方法用于将多个Promise实例，包装成一个新的Promise实例。
+
+```js
+var p = Promise.all([p1, p2, p3]);
+```
+上面的例子中，p接受一个数组作为参数，其中p1、p2、p3都是一个Promise实例。
+p的状态是由p1、p2、p3共同决定的：
+- 仅当p1、p2、p3的状态都是resolved时，p的状态才会转换为resolved。此时p1、p2、p3的返回值组成一个数组，传递给p的回调函数。  
+- 当p1、p2、p3中任意一个的状态变为rejected时，这个实例的返回值，会被传递给p的回调函数。
+
+```js
+var promises = (arr) => {
+	return arr.map((item, index) => {
+		return new Promise((resolve, reject) => {
+			if (item % 2) {
+				resolve(item + '是奇数');
+			} else {
+				reject(item + '是偶数');
+			}
+		})
+	})
+}
+
+var findEven = (arr) => {
+	Promise.all(promises(arr)).then((values) => {
+		console.log(values);
+	}).catch((err) => {
+		console.error(err)
+	})
+}
+
+findEven([1, 3, 5]) // ["1是奇数", "3是奇数", "5是奇数"]
+findEven([1, 2, 5]) // 2是偶数
+```
+
+### Promise.race()
+该方法和Promise.all()非常相似，唯一不同的地方就是：若`var p = Promise.race([p1, p2, p3]);`中p1、p2、p3有任意一个的状态变为Resolved，则会调用p的回调函数。
+
+## 6. Iterate遍历器 和 for...of循环
+JavaScript表示“集合”的数据结构（Array，Object，以及算上ES6新提供的Set和Map）。  
+每种数据结构有它自己的遍历方法，而Iterate遍历器则提供了一种机制，可以统一遍历这4种结构，主要提供新的遍历命令for...of消费。
+凡是部署了Symbol.iterator属性的数据结构，就称为部署了遍历器接口。  
+
+### for...of可遍历的数据结构
+在ES6中，有些数据结构原生具备Iterator接口（比如数组），即不用任何处理，就可以被for...of循环遍历，有些就不行（比如对象）。原因在于，这些数据结构原生部署了Symbol.iterator属性（数组、类数组对象对象、Set和Map结构）。
+*注： 字符串其实是一个类数组对象，所以它也具有Iterate接口。*  
+
+```js
+let arr = ['a', 'b', 'c'];
+let iter = arr[Symbol.iterator]();
+
+iter.next() // { value: 'a', done: false }
+iter.next() // { value: 'b', done: false }
+iter.next() // { value: 'c', done: false }
+iter.next() // { value: undefined, done: true }
+```
+
+### 自行部署Iterate接口
+另外一些数据结构没有（主要指对象），就需要自己在Symbol.iterator属性上面部署，这样才会被for...of循环遍历。
+#### 遍历器对象必须部署next方法。
+```js
+let obj = {
+  data: [ 'hello', 'world' ],
+  [Symbol.iterator]() {
+    const self = this;
+    let index = 0;
+    return {
+      next() {
+        if (index < self.data.length) {
+          return {
+            value: self.data[index++],
+            done: false
+          };
+        } else {
+          return { value: undefined, done: true };
+        }
+      }
+    };
+  }
+};
+for (var item of obj) {
+	console.log(item)
+}
+// hello
+// world
+```
+下面是给一个类添加Iterate接口的例子。
+
+```js
+class RangeIterator {
+  constructor(start, stop) {
+    this.value = start;
+    this.stop = stop;
+  }
+
+  [Symbol.iterator]() { return this; }
+
+  next() {
+    var value = this.value;
+    if (value < this.stop) {
+      this.value++;
+      return {done: false, value: value};
+    } else {
+      return {done: true, value: undefined};
+    }
+  }
+}
+
+function range(start, stop) {
+  return new RangeIterator(start, stop);
+}
+
+for (var value of range(0, 3)) {
+  console.log(value);
+}
+```
+#### 遍历器对象可选择部署return方法
+当遍历提前中断（报错 或 遇到break、continue语句）时，就会调用return方法。  
+```js
+function Range(start, end) {
+	this.start = start;
+	this.end = end;
+	this.current = start;
+	this[Symbol.iterator] = () => {
+		return this
+	}
+	this.next = () => {
+		if (this.current <= this.end) {
+			console.log(this.current);
+			return {
+				value: this.current++,
+				done: false
+			}
+		} else {
+			console.log('this is the end!');
+			return {
+				value: undefined,
+				done: true
+			}
+		}
+	};
+	this.return = () => {
+		console.log('stop here, current num is ' + (--this.current));
+		return {
+			done: true
+		}
+	}
+}
+
+function stopHere(start, end, stop) {
+	for (let value of new Range(start, end)) {
+		if (value == stop) {
+			break;
+		}
+	}
+}
+
+stopHere(1,5,3)
+// 1
+// 2
+// 3
+// stop here, current num is 3
+```
+
+#### 遍历器对象可选择部署throw方法
+throw方法主要是配合Generator函数使用，一般的遍历器对象用不到这个方法。
+
+### 使用了Iterate接口的场合
+- 解构赋值： let {name, age} = person
+- 扩展运算符： let strArr = [...'hello'] // ["h", "e", "l", "l", "o"]
+- yield*
+- 任何接受数组作为参数的API
+
+## 7. Generator函数
+Generator函数和Promise对象一样，都是ES6提供的一种异步编程解决方案。
+### 基本用法
+Generator函数和普通函数不同的地方是：
+- function关键字与函数名之间有一个星号
+	
+	```js
+	function * foo(x, y) { ··· }
+	
+	function *foo(x, y) { ··· }
+	
+	function* foo(x, y) { ··· }
+	
+	function*foo(x, y) { ··· }
+	```
+	以上四种写法都可以被识别。
+- 函数体内部使用yield语句，定义不同的内部状态。
+
+	```js
+	function* helloWorldGenerator() {
+	  yield 'hello';
+	  // 以上是第1段状态
+	  yield 'world';
+	  // 以上是第2段状态
+	  return 'ending';
+	  // 以上是第3段状态
+	}
+	
+	var hw = helloWorldGenerator();
+	```
+	上面的例子中，该函数被分为三断状态：从开头到'hello'后的分号，到'world'后的分号，到'ending'后的分号。
+
+调用Generator函数后，该函数并不执行，返回的是一个指向内部状态遍历器对象（Iterator Object）。  
+下一步，必须调用遍历器对象的next方法，使得指针移向下一个状态。
+
+```js
+hw.next()
+// { value: 'hello', done: false }
+
+hw.next()
+// { value: 'world', done: false }
+
+hw.next()
+// { value: 'ending', done: true }
+
+hw.next()
+// { value: undefined, done: true }
+```
+Generator函数更像是分段执行函数，yield语句是暂停执行的标记，而next方法可以使继续执行下一段语句。  
+yield(或return)后的值，就是Iterate遍历器返回的value值。
+
+### for...of循环
+for...of循环可以自动遍历Generator函数时生成的Iterator对象，且此时不再需要调用next方法。
+
+```js
+function* foo() {
+  yield 1;
+  yield 2;
+  yield 3;
+  yield 4;
+  yield 5;
+  return 6;
+}
+
+for (let v of foo()) {
+  console.log(v);
+}
+// 1 2 3 4 5
+```
+### Generator.prototype.throw()
+Generator函数返回的遍历器对象，都有一个throw方法，可以在函数体外抛出错误，然后在Generator函数体内捕获。
+```js
+var g = function* () {
+  try {
+    yield;
+  } catch (e) {
+    console.log('内部捕获', e);
+  }
+};
+
+var i = g();
+i.next();
+
+try {
+  i.throw('a');
+  throw new Error('b');
+} catch (e) {
+  console.log('外部捕获', e);
+}
+// 内部捕获 a
+// 外部捕获 Error: b
+```
+上面的例子可以看到，`Generator.prototype.throw`方法抛出的错误可以在函数内部被捕捉到（外部也可以），而全局的throw命令只能在函数体外被捕捉。
