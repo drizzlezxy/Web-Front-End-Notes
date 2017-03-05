@@ -43,35 +43,38 @@ var returnedNode = parentNode.appendChild(newNode);
 -  `parentNode.removeChild(childNode)`
 
 #### c. 复制节点
-- `someNode.cloneNode([boolean])`
-	复制现有的节点，传入的boolean表是否深克隆（深克隆会将该节点以及其子节点一同复制，浅克隆则只复制该节点本身）。
+- `someNode.cloneNode([boolean])`  
+	复制现有的节点，传入的boolean表是否深克隆（深克隆会将该节点以及其子节点一同复制，浅克隆则只复制该节点本身）。  
 	复制后还需要通过`appendChild()`或`insertBefore()`或`replaceChild()`使其占据DOM中的具体位置
 
 ## Document类型节点
-我们平时js中所用的document对象，就是12种节点中的DOCUMENT_NODE的一个实例，表示整个HTML页面。 
+我们平时js中所用的ducument对象，就是12种节点中的DOCUMENT_NODE的一个实例，值为9，表示整个HTML页面。  
 
-- 子节点  
+- 特殊子节点
 	+ `<html>`元素  
-		document.documentElement  
+		document.documentElement
 	+ `<body>`元素  
-		document.body  
+		document.body
 	+ `<title>`元素  
 		document.title
 
-- 文档信息
+- 文档信息  
 	其实就是该文档的HTTP请求中的一些信息，只不过可以通过js访问。
-	+ URL地址
+	+ URL地址  
 		`document.URL` 完整URL
-	+ domain
+	+ domain  
 		`document.domain` 主机域名
-	+ referrer
+	+ referrer  
 		`document.referrer` 来源页面的URL
+		
 - 查找元素
 	+ `document.getElementById('myDiv')`  
+		返回id属性(attribute)与之匹配的唯一元素节点。
+		若多个元素拥有相同的id，则返回第一个。
 	+ `document.getElementsByTagName('div')`  
 		其中，括号中的tagName不区分大小写  
 	+ `document.getElementsByClassName('m-header')`  
-		HTML5中新增方法
+		HTML5中新增的方法
 
 	后两种方法，都会返回一个包含所有符合条件的节点的“动态”集合--HTMLCollection对象，该对象类似于一个存放了零个或多个节点的数组。  
 	当然还有一下一些特殊的节点可以直接取到，可以方便我们操作。
@@ -129,7 +132,7 @@ var returnedNode = parentNode.appendChild(newNode);
 	![document.write()](img/html_write_2.jpeg)	
 	
 ## Element类型节点
-12种节点中的ELEMENT_NODE的实例，就是HTML中的元素。 
+HTML中的元素都直接或间接的继承自ELEMENT_NODE(值为1)。 
 
 ```js
 let div = document.getElementById('myDiv');
@@ -158,7 +161,7 @@ div.nodeName;		// "DIV"
 		```
 + 创建元素
 
-	按一下步骤创建新的元素：
+	按以下步骤创建新的元素：
 	
 	```html
 	<html>
@@ -166,7 +169,7 @@ div.nodeName;		// "DIV"
 		</head>
 		<body>
 			<script type="text/javascript">
-				// 创建一个新元素
+				// 创建一个新元素，括号中传入tagName，大小写均可
 				let div = document.createElement("div");
 				
 				// html标准属性id赋值
