@@ -73,10 +73,17 @@ var returnedNode = parentNode.appendChild(newNode);
 		若多个元素拥有相同的id，则返回第一个。
 	+ `document.getElementsByTagName('div')`  
 		其中，括号中的tagName不区分大小写  
-	+ `document.getElementsByClassName('m-header')`  
-		HTML5中新增的方法
+	+ `parentNode.getElementsByClassName('m-header myDiv')`  
+		HTML5中新增的方法，括号内接受一个或多个类名的字符串，类名间用空格连接。  
+		返回一个带有所有属性和方法的NodeList，并不是“动态”的集合。
 
 	后两种方法，都会返回一个包含所有符合条件的节点的“动态”集合--HTMLCollection对象，该对象类似于一个存放了零个或多个节点的数组。  
+	2008年后W3C将一些各浏览器专有的方法写入了规范，扩展了原有的操作方法。  
+	
+	+ `parentNode.querySelector()`
+	+ `parentNode.querySelectorAll()`
+		以上两个方法，括号中接受CSS选择符，和原有查询方式不同的是 这两种方法不会不断文档进行动态查询。后者返回一个带有所有属性和方法的NodeList，并不是“动态”的集合。
+
 	当然还有一下一些特殊的节点可以直接取到，可以方便我们操作。
 	
 	```js
