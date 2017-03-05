@@ -18,7 +18,7 @@ Node.DOCUMENT_TYPE_NODE		// 10
 Node.DOCUMENT_FRAGMENT_NODE	// 11
 Node.NOTATION_NODE			// 12
 ```
-### 2. 节点的关系
+### 2. 节点的关系  
 ![元素节点关系](./img/NodeRelation.png)
 
 ### 3. 操作节点
@@ -108,7 +108,7 @@ var returnedNode = parentNode.appendChild(newNode);
 		</body>
 	</html>
 	```
-	页面效果如下：
+	页面效果如下：  
 	![document.write()](img/html_write_1.jpeg)
 	
 	但如果在文档加载结束后再调用document.write方法，则输出的内容会重写整个页面。
@@ -128,7 +128,7 @@ var returnedNode = parentNode.appendChild(newNode);
 		</body>
 	</html>
 	```
-	页面效果如下：
+	页面效果如下：  
 	![document.write()](img/html_write_2.jpeg)	
 	
 ## Element类型节点
