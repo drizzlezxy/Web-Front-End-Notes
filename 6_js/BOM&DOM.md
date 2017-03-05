@@ -1,6 +1,9 @@
 # DOM
 ## 节点的概念
 ### 1. 节点的类型
+在javaScript中，所有DOM元素都是由以下12个Node类型实现的。
+（除了IE，其他的浏览器都可以直接访问到这些类型。）
+
 ```js
 Node.ELEMENT_NODE 			// 1
 Node.ATTRIBUTE_NODE			// 2
