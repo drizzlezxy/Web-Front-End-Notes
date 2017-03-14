@@ -101,20 +101,47 @@
 	```
 	
 事件对象一般会有以下这些成员：  
-FIXME
-![event_customEvent](img/event_customEvent.jpeg)
+![event_customEvent](img/event_customEvent.png)  
+*只有在事件处理函数执行期间，event对象才会存在。一旦事件处理程序执行完成，event对象就会被销毁。*
 
 ## 事件类型
 以上是关于事件如何发生，以及如何处理的一些过程，*事件类型*就介绍了DOM3规定了会在Web浏览器中发生那些特定的事件。  
-- UI事件
-- 焦点事件
+- UI事件  
+	+ load  
+	+ unload  
+	+ abort  
+	+ error  
+	+ select
+	+ resize
+	+ scroll
+- 焦点事件  
+	+ blur
+	+ focus  
 - 鼠标与滚轮事件
+	+ click  
+	+ bdlclick  
+	+ mousedown  
+	+ mouseup  
+	+ mouseover  
+	+ mousemove  
+	+ mouseout  
+	+ mousewheel
 - 键盘与文本事件
+	+ keydown  
+	+ keypress  
+	+ keyup  
 - 复合事件
 - 变动事件
 - HTML5事件
 - 设备事件
-- 触摸与收拾事件
+- 触摸与手势事件
+	+ touchstart
+	+ touchmove  
+	+ touchend
+	+ touchcancel  
+	+ gesturestart  
+	+ gesturechange  
+	+ gestureend 
 
 
 ## 事件委托
@@ -133,5 +160,21 @@ FIXME
 ```
 则我们把各个子元素的事件都委托给ul元素
 ```js
-	FIXME
+var list = document.getElementById("myLinks");
+
+list.onclick = function(ev) {
+	var target = ev.target;
+	switch (target.id) {
+		case "doSomething":
+			document.title = "I changed the document's title";
+			break;
+		case "goSomewhere":
+			location.href = "http://www.wrox.com";
+			break;
+		case "sayHi":
+			alert("hi");
+			break;
+	}
+};
 ```
+像上面的例子中的，子元素的事件都会冒泡到父元素ul上，只要在ul上指定事件处理程序即可，就无需未所有的子元素一一指定事件处理程序。
